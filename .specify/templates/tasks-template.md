@@ -9,6 +9,12 @@ description: "Task list template for feature implementation"
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
+**Constitution Compliance**: All tasks must align with project constitution principles:
+- **Code Quality**: Linting, formatting, documentation, complexity < 10
+- **TDD**: Write tests FIRST (Red-Green-Refactor), maintain ≥ 80% coverage
+- **UX Consistency**: Follow design system, meet WCAG 2.1 AA, provide user feedback
+- **Performance**: Meet response time targets, implement optimizations (caching, pagination)
+
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`

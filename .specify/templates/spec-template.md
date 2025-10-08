@@ -100,6 +100,34 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+### Quality Requirements *(align with Constitution Principle I)*
+
+- **Code Quality**: Code MUST pass linting, maintain complexity < 10, include documentation
+- **Code Review**: All changes require peer review before merge
+- **Testing Standards**: Minimum 80% test coverage, TDD workflow mandatory
+
+### User Experience Requirements *(align with Constitution Principle III)*
+
+- **Accessibility**: MUST meet WCAG 2.1 AA standards (if UI feature)
+  - Keyboard navigation functional
+  - Color contrast ≥ 4.5:1
+  - Screen reader compatible
+  - Semantic HTML/labels
+- **Feedback**: Loading states for operations > 200ms, clear error messages
+- **Responsiveness**: Support mobile (320px), tablet (768px), desktop (1024px+) if web
+- **Internationalization**: No hardcoded text, use i18n system
+- **Design Consistency**: Follow established design system/patterns
+
+### Performance Requirements *(align with Constitution Principle IV)*
+
+- **Response Times**:
+  - API endpoints: p95 < 200ms, p99 < 500ms
+  - Web pages: First Contentful Paint < 1.5s, Time to Interactive < 3.5s
+  - Database queries: < 100ms (95% of cases)
+- **Scalability**: Support [specify target, e.g., 1000 req/s]
+- **Resource Usage**: Memory < 512MB per process, CPU < 70% under normal load
+- **Optimizations**: Caching, pagination (> 50 items), lazy loading, connection pooling
+
 ## Success Criteria *(mandatory)*
 
 <!--

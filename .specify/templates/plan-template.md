@@ -31,7 +31,31 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### I. Code Quality Standards
+- [ ] Linting and formatting tools configured (language-specific)
+- [ ] Code review process documented
+- [ ] Complexity monitoring enabled (if applicable)
+- [ ] Documentation standards defined
+
+### II. Test-Driven Development
+- [ ] Testing framework configured (unit, integration, contract)
+- [ ] Test coverage tools set up (target: ≥ 80%)
+- [ ] TDD workflow documented (Red-Green-Refactor)
+- [ ] CI/CD pipeline includes test execution
+
+### III. User Experience Consistency
+- [ ] Design system referenced or created (if UI feature)
+- [ ] Accessibility requirements defined (WCAG 2.1 AA)
+- [ ] User feedback mechanisms planned
+- [ ] Responsive design breakpoints defined (if web)
+- [ ] i18n system in place (no hardcoded strings)
+
+### IV. Performance Requirements
+- [ ] Response time targets defined (API: p95 < 200ms, Web: FCP < 1.5s)
+- [ ] Scalability goals documented (e.g., 1000 req/s)
+- [ ] Optimization strategies identified (caching, pagination, lazy loading)
+- [ ] Performance monitoring planned (APM, metrics)
+- [ ] Load testing strategy defined
 
 ## Project Structure
 
