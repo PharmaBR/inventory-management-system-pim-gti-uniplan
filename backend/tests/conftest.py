@@ -68,3 +68,195 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
     """Create a test HTTP client."""
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
+
+
+# Aliases for consistency with test code
+@pytest_asyncio.fixture
+async def async_client(client) -> AsyncClient:
+    """Alias for client fixture."""
+    return client
+
+
+@pytest_asyncio.fixture
+async def test_tenant(db_session: AsyncSession) -> dict:
+    """Create a test tenant."""
+    from uuid import uuid4
+    from src.db.models.tenant import Tenant
+    
+    tenant = Tenant(
+        id=uuid4(),
+        name="Test Tenant",
+        slug="test-tenant",
+        logo_url="https://example.com/logo.png",
+        primary_color="#000000",
+        secondary_color="#FFFFFF",
+        max_users=10,
+        max_products=1000,
+        max_storage_gb=10,
+        settings={},
+        is_active=True
+    )
+    db_session.add(tenant)
+    await db_session.commit()
+    await db_session.refresh(tenant)
+    
+    return {
+        "id": str(tenant.id),
+        "slug": tenant.slug,
+        "name": tenant.name
+    }
+
+
+@pytest_asyncio.fixture
+async def test_user(db_session: AsyncSession, test_tenant: dict) -> dict:
+    """Create a test user."""
+    from uuid import uuid4, UUID
+    from src.db.models.user import User
+    from src.core.security import hash_password
+    
+    user = User(
+        id=uuid4(),
+        tenant_id=UUID(test_tenant["id"]),
+        email="test@example.com",
+        full_name="Test User",
+        password_hash=hash_password("testpassword123"),
+        role="admin",
+        is_active=True
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "tenant_id": test_tenant["id"],
+        "role": user.role
+    }
+
+
+@pytest_asyncio.fixture
+async def auth_headers(test_user: dict) -> dict:
+    """Create authentication headers with JWT token."""
+    from src.core.security import create_access_token
+    
+    token = create_access_token(
+        user_id=test_user["id"],
+        tenant_id=test_user["tenant_id"],
+        email=test_user["email"],
+        role=test_user["role"]
+    )
+    
+    return {
+        "Authorization": f"Bearer {token}",
+        "X-Tenant-Slug": "test-tenant"
+    }
+
+
+@pytest_asyncio.fixture
+async def tenant_id(test_tenant: dict) -> str:
+    """Get test tenant ID."""
+    return test_tenant["id"]
+
+
+@pytest_asyncio.fixture
+async def category_id(db_session: AsyncSession, test_tenant: dict) -> str:
+    """Create a test category."""
+    from uuid import uuid4, UUID
+    from src.db.models.category import Category
+    
+    category = Category(
+        id=uuid4(),
+        tenant_id=UUID(test_tenant["id"]),
+        name="Test Category",
+        description="A test category",
+        status="active"
+    )
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+    
+    return str(category.id)
+
+
+# Fixtures for multi-tenant testing
+@pytest_asyncio.fixture
+async def test_tenant_2(db_session: AsyncSession) -> dict:
+    """Create a second test tenant."""
+    from uuid import uuid4
+    from src.db.models.tenant import Tenant
+    
+    tenant = Tenant(
+        id=uuid4(),
+        name="Test Tenant 2",
+        slug="test-tenant-2",
+        logo_url="https://example.com/logo2.png",
+        primary_color="#FF0000",
+        secondary_color="#00FF00",
+        max_users=10,
+        max_products=1000,
+        max_storage_gb=10,
+        settings={},
+        is_active=True
+    )
+    db_session.add(tenant)
+    await db_session.commit()
+    await db_session.refresh(tenant)
+    
+    return {
+        "id": str(tenant.id),
+        "slug": tenant.slug,
+        "name": tenant.name
+    }
+
+
+@pytest_asyncio.fixture
+async def test_user_2(db_session: AsyncSession, test_tenant_2: dict) -> dict:
+    """Create a user for second tenant."""
+    from uuid import uuid4, UUID
+    from src.db.models.user import User
+    from src.core.security import hash_password
+    
+    user = User(
+        id=uuid4(),
+        tenant_id=UUID(test_tenant_2["id"]),
+        email="test2@example.com",
+        full_name="Test User 2",
+        password_hash=hash_password("testpassword123"),
+        role="admin",
+        is_active=True
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "tenant_id": test_tenant_2["id"],
+        "role": user.role
+    }
+
+
+@pytest_asyncio.fixture
+async def auth_headers_tenant1(auth_headers: dict) -> dict:
+    """Alias for tenant 1 auth headers."""
+    return auth_headers
+
+
+@pytest_asyncio.fixture
+async def auth_headers_tenant2(test_user_2: dict) -> dict:
+    """Create authentication headers for tenant 2."""
+    from src.core.security import create_access_token
+    
+    token = create_access_token(
+        user_id=test_user_2["id"],
+        tenant_id=test_user_2["tenant_id"],
+        email=test_user_2["email"],
+        role=test_user_2["role"]
+    )
+    
+    return {
+        "Authorization": f"Bearer {token}",
+        "X-Tenant-Slug": "test-tenant-2"
+    }
