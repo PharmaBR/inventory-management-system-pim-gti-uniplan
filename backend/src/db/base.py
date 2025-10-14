@@ -3,6 +3,7 @@ Database base configuration with SQLAlchemy 2.0 async support.
 """
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 from typing import AsyncGenerator
 
 from src.core.config import settings
@@ -11,6 +12,18 @@ from src.core.config import settings
 class Base(DeclarativeBase):
     """Base class for all ORM models."""
     pass
+
+
+# Import all models to ensure they're registered with Base.metadata
+# This must be done before create_all() is called
+from src.db.models.tenant import Tenant  # noqa: E402, F401
+from src.db.models.user import User  # noqa: E402, F401
+from src.db.models.category import Category  # noqa: E402, F401
+from src.db.models.product import Product  # noqa: E402, F401
+from src.db.models.movement import Movement  # noqa: E402, F401
+from src.db.models.alert import Alert  # noqa: E402, F401
+from src.db.models.custom_field import CustomFieldDefinition  # noqa: E402, F401
+from src.db.models.audit_log import AuditLog  # noqa: E402, F401
 
 
 # Create async engine
@@ -56,8 +69,21 @@ async def init_db() -> None:
     Initialize database - create all tables.
     Only use in development/testing.
     """
+    from src.core.logging import logger
+    logger.info(f"Tables registered in Base.metadata: {list(Base.metadata.tables.keys())}")
+    
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        logger.info("Running create_all...")
+        # Force checkfirst=True to always check before creating
+        await conn.run_sync(lambda sync_conn: Base.metadata.create_all(sync_conn, checkfirst=True))
+        logger.info("create_all completed")
+        
+        # Verify tables were created
+        result = await conn.execute(
+            text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+        )
+        tables = [row[0] for row in result]
+        logger.info(f"Tables now in database: {tables}")
 
 
 async def close_db() -> None:

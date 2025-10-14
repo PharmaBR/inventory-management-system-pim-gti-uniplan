@@ -45,7 +45,8 @@ class AuditLog(BaseModel):
     # Details of the change
     description = Column(Text, nullable=True)
     changes = Column(JSON, nullable=True)  # {"before": {...}, "after": {...}}
-    metadata = Column(JSON, nullable=True)  # Additional context (IP, user agent, etc.)
+    extra_data = Column(JSON, nullable=True)  # Additional context (IP, user agent, etc.)
+
     
     # Relationships
     tenant = relationship("Tenant", back_populates="audit_logs")
