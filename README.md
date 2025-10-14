@@ -48,13 +48,21 @@ Ver [README_DOCKER.md](README_DOCKER.md) para instruções detalhadas.
 
 ## 📚 Documentação
 
+### Governança e Planejamento
 - **[Constituição do Projeto](.specify/memory/constitution.md)** - Princípios e padrões obrigatórios
 - **[Especificação](specs/001-sistema-de-gerenciamento/spec.md)** - Requisitos e user stories
-- **[Plano de Implementação](specs/001-sistema-de-gerenciamento/plan.md)** - Decisões técnicas
-- **[Modelo de Dados](specs/001-sistema-de-gerenciamento/data-model.md)** - Schema do banco
-- **[Contratos API](specs/001-sistema-de-gerenciamento/contracts/api-contracts.md)** - Endpoints REST
+- **[Plano de Implementação](specs/001-sistema-de-gerenciamento/plan.md)** - Decisões técnicas (ADRs)
 - **[Tasks](specs/001-sistema-de-gerenciamento/tasks.md)** - Breakdown de 225 tarefas
+
+### Técnica
+- **[API Documentation](docs/API.md)** - Endpoints, autenticação, modelos de dados
+- **[Developer Guide](docs/DEVELOPMENT.md)** - Setup, workflow, debugging, padrões
+- **[Modelo de Dados](specs/001-sistema-de-gerenciamento/data-model.md)** - Schema do banco
+- **[Contratos API](specs/001-sistema-de-gerenciamento/contracts/api-contracts.md)** - Especificação REST
+
+### Operacional
 - **[Guia Docker](README_DOCKER.md)** - Operações Docker Compose
+- **[Changelog](CHANGELOG.md)** - Histórico de versões e mudanças
 
 ## 🏗️ Stack Tecnológico
 
@@ -74,18 +82,52 @@ Ver [README_DOCKER.md](README_DOCKER.md) para instruções detalhadas.
 
 ## 📋 Status do Projeto
 
-### ✅ Phase 1: Setup (Completo)
-- [x] Estrutura do projeto
-- [x] Docker Compose
-- [x] Backend FastAPI básico
-- [x] Frontend React + Vite
+### ✅ Phase 1: Setup (Completo - T001-T013)
+- [x] Estrutura do projeto (backend + frontend)
+- [x] Docker Compose (4 serviços: PostgreSQL, Redis, Backend, Frontend)
+- [x] Backend FastAPI básico com CORS
+- [x] Frontend React + Vite com hot reload
 - [x] Linting e testes configurados
+- [x] **Testado**: Stack completo validado
+
+### ✅ Phase 2: Foundational Infrastructure (Completo - T014-T040)
+
+**Backend (27 tarefas):**
+- [x] **Database**: SQLAlchemy 2.0 async + 8 modelos ORM + 55 índices
+  - Tenants, Users, Categories, Products, Movements, Alerts, CustomFieldDefinitions, AuditLogs
+- [x] **Autenticação**: Sistema JWT completo (access + refresh tokens, Bcrypt)
+- [x] **Middleware**: Tenant (subdomain/query/header) + Auth (JWT + RBAC)
+- [x] **Dependency Injection**: Database session, Auth, Tenant context
+- [x] **Infrastructure**: Redis cache + Logging estruturado + Error handlers globais
+- [x] **Schemas**: Pydantic base schemas + Pagination + Responses
+- [x] **Migrations**: Alembic configurado com async support
+- [x] **Testado**: 10/10 testes passando (tables, health, swagger, redis, indexes)
+
+**Frontend (27 tarefas):**
+- [x] **i18n**: react-i18next (PT-BR + EN-US) com fallback
+- [x] **UI Components**: Button, Input, Modal, Toast (com variants e estados)
+- [x] **Layout**: Header (branding + menu), Sidebar (nav), Footer
+- [x] **API Client**: Axios com interceptors (JWT injection + auto refresh)
+- [x] **Hooks**: useAuth (login/logout/RBAC) + useTenant (context/branding)
+- [x] **Utils**: cn() para Tailwind class merging
+
+**Estatísticas da Fase 2:**
+- 📦 40+ arquivos criados/modificados
+- 💻 ~3.500 linhas de código
+- 🔨 7 commits bem documentados
+- ✅ 100% dos testes passando
 
 ### 🚧 Próximas Fases
-- [ ] Phase 2: Foundational (DB, Auth, Middleware)
-- [ ] Phase 3-5: MVP Features
-- [ ] Phase 6-7: Advanced Features
-- [ ] Phase 8-9: Customization & Polish
+- [ ] **Phase 3**: User Story 1 - Products CRUD (T041-T072)
+  - TDD workflow: Testes → Schemas → Services → Endpoints → Components
+- [ ] **Phase 4**: User Story 2 - Movimentações (T073-T094)
+- [ ] **Phase 5**: User Story 3 - Multi-tenant Setup (T095-T115)
+- [ ] **Phase 6**: User Story 4 - Gestão de Usuários (T116-T139)
+- [ ] **Phase 7**: User Story 5 - Relatórios e Alertas (T140-T174)
+- [ ] **Phase 8**: User Story 6 - Customização (T175-T202)
+- [ ] **Phase 9**: Polish & Deploy (T203-T225)
+
+**Progresso Geral**: 40/225 tarefas (17.8%) | MVP: 40/115 (34.8%)
 
 ## 📄 Licença
 
