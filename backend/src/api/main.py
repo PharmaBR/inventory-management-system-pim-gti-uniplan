@@ -5,10 +5,43 @@ This module initializes the FastAPI application with all middleware,
 routes, and configuration.
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.config import settings
+from src.core.logging import logger
+from src.db.base import init_db, close_db
+from src.core.cache import close_redis
+from src.api.middleware.tenant import TenantMiddleware
+from src.api.middleware.error_handler import register_exception_handlers
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan events."""
+    # Startup
+    logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info(f"Environment: {settings.ENVIRONMENT}")
+    logger.info(f"Debug mode: {settings.DEBUG}")
+    
+    # Initialize database (only in development)
+    if settings.ENVIRONMENT == "development":
+        logger.info("Initializing database tables...")
+        try:
+            await init_db()
+            logger.info("Database initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database: {e}")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down application...")
+    await close_db()
+    await close_redis()
+    logger.info("Shutdown complete")
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -16,7 +49,11 @@ app = FastAPI(
     debug=settings.DEBUG,
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
+    lifespan=lifespan,
 )
+
+# Register exception handlers
+register_exception_handlers(app)
 
 # CORS Middleware
 app.add_middleware(
@@ -25,6 +62,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Tenant Middleware
+app.add_middleware(
+    TenantMiddleware,
+    development_mode=settings.ENVIRONMENT == "development"
 )
 
 
