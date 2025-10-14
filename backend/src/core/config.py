@@ -39,10 +39,15 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # CORS
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://*.localhost:3000"
 
     # Logging
     LOG_LEVEL: str = "INFO"
+
+    @property
+    def cors_origins(self) -> List[str]:
+        """Parse CORS origins from comma-separated string."""
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
     @property
     def is_development(self) -> bool:
