@@ -1,174 +1,96 @@
-# Sistema de Gerenciamento de Estoque White Label
+# 📦 Inventory Management System - PIM GTI UNIPLAN
 
-Sistema multi-tenant de gerenciamento de estoque com personalização de marca, controle de movimentações, relatórios e alertas.
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688.svg?style=flat&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791.svg?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+
+> Sistema de gerenciamento de estoque white-label multi-tenant desenvolvido como Projeto Integrado Multidisciplinar (PIM) para GTI UNIPLAN.
+
+## 🎯 Visão Geral
+
+Sistema SaaS moderno de controle de estoque com arquitetura multi-tenant, permitindo que múltiplas empresas compartilhem a mesma infraestrutura com isolamento completo de dados e personalização por cliente.
+
+### ✨ Principais Características
+
+- 🏢 **Multi-tenant**: Isolamento de dados via Row-Level Security (RLS)
+- 🎨 **White-label**: Personalização de marca (logo, cores, domínio)
+- 📦 **Gestão Completa**: Produtos, movimentações, categorias, relatórios
+- 🔐 **Autenticação JWT**: Sistema seguro com refresh tokens
+- 📊 **Relatórios**: Dashboards e alertas de estoque mínimo
+- 📁 **Importação CSV**: Processamento transacional em lote
+- 🌍 **Internacionalização**: Suporte PT-BR e EN-US
+- 🎯 **Performance**: API < 200ms (p95), 1000 req/s
 
 ## 🚀 Quick Start
 
 ### Usando Docker Compose (Recomendado)
 
 ```bash
-# Clonar repositório
-git clone <repository-url>
-cd teste_speckit
+# Clone o repositório
+git clone https://github.com/PharmaBR/inventory-management-system-pim-gti-uniplan.git
+cd inventory-management-system-pim-gti-uniplan
 
-# Iniciar todos os serviços
+# Inicie todos os serviços
 docker-compose up -d
 
-# Aguardar inicialização (~30 segundos)
-# Backend: http://localhost:8000
+# Teste o stack
+./scripts/test-docker-stack.sh
+
+# Acesse:
 # Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
 # API Docs: http://localhost:8000/docs
 ```
 
-### Setup Manual
-
-#### Backend
-
-```bash
-cd backend
-
-# Criar ambiente virtual
-python3.11 -m venv venv
-source venv/bin/activate
-
-# Instalar dependências
-pip install -r requirements/dev.txt
-
-# Configurar ambiente
-cp .env.example .env
-# Editar .env com suas configurações
-
-# Iniciar servidor
-uvicorn src.api.main:app --reload
-```
-
-#### Frontend
-
-```bash
-cd frontend
-
-# Instalar dependências
-npm install
-
-# Configurar ambiente
-cp .env.example .env.local
-
-# Iniciar servidor
-npm run dev
-```
-
-## 📋 Requisitos
-
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose (opcional)
-
-## 🏗️ Arquitetura
-
-### Backend
-- **Framework**: FastAPI (Python 3.11+)
-- **ORM**: SQLAlchemy 2.0 (async)
-- **Database**: PostgreSQL 15+ com Row-Level Security
-- **Cache**: Redis 7+
-- **Auth**: JWT + Bcrypt
-
-### Frontend
-- **Framework**: React 18+ com TypeScript
-- **Build**: Vite
-- **Styling**: TailwindCSS + Shadcn/ui
-- **i18n**: react-i18next (PT-BR, EN-US)
-
-### Multi-Tenancy
-- Isolamento por subdomain (tenant1.sistema.com)
-- Row-Level Security (RLS) no PostgreSQL
-- Personalização de marca (logo, cores) por tenant
+Ver [README_DOCKER.md](README_DOCKER.md) para instruções detalhadas.
 
 ## 📚 Documentação
 
-- [Especificação](specs/001-sistema-de-gerenciamento/spec.md)
-- [Plano de Implementação](specs/001-sistema-de-gerenciamento/plan.md)
-- [Modelo de Dados](specs/001-sistema-de-gerenciamento/data-model.md)
-- [Contratos de API](specs/001-sistema-de-gerenciamento/contracts/api-contracts.md)
-- [Tarefas](specs/001-sistema-de-gerenciamento/tasks.md)
-- [Guia de Desenvolvimento](specs/001-sistema-de-gerenciamento/quickstart.md)
+- **[Constituição do Projeto](.specify/memory/constitution.md)** - Princípios e padrões obrigatórios
+- **[Especificação](specs/001-sistema-de-gerenciamento/spec.md)** - Requisitos e user stories
+- **[Plano de Implementação](specs/001-sistema-de-gerenciamento/plan.md)** - Decisões técnicas
+- **[Modelo de Dados](specs/001-sistema-de-gerenciamento/data-model.md)** - Schema do banco
+- **[Contratos API](specs/001-sistema-de-gerenciamento/contracts/api-contracts.md)** - Endpoints REST
+- **[Tasks](specs/001-sistema-de-gerenciamento/tasks.md)** - Breakdown de 225 tarefas
+- **[Guia Docker](README_DOCKER.md)** - Operações Docker Compose
 
-## 🧪 Testes
+## 🏗️ Stack Tecnológico
 
-### Backend
+**Backend:**
+- Python 3.11+ com FastAPI
+- PostgreSQL 15+ com RLS
+- Redis 7 para cache
+- SQLAlchemy 2.0 + Alembic
+- JWT + Bcrypt
 
-```bash
-cd backend
+**Frontend:**
+- React 18 + TypeScript
+- Vite 5
+- TailwindCSS 3
+- TanStack Query
+- react-i18next
 
-# Executar todos os testes
-pytest
+## 📋 Status do Projeto
 
-# Com cobertura
-pytest --cov=src --cov-report=html
+### ✅ Phase 1: Setup (Completo)
+- [x] Estrutura do projeto
+- [x] Docker Compose
+- [x] Backend FastAPI básico
+- [x] Frontend React + Vite
+- [x] Linting e testes configurados
 
-# Testes específicos
-pytest tests/unit/test_products.py
-```
+### 🚧 Próximas Fases
+- [ ] Phase 2: Foundational (DB, Auth, Middleware)
+- [ ] Phase 3-5: MVP Features
+- [ ] Phase 6-7: Advanced Features
+- [ ] Phase 8-9: Customization & Polish
 
-### Frontend
+## 📄 Licença
 
-```bash
-cd frontend
+Projeto desenvolvido como PIM para GTI UNIPLAN - 2025
 
-# Executar testes
-npm run test
+---
 
-# Com cobertura
-npm run test:coverage
-
-# Watch mode
-npm run test:watch
-```
-
-## 🎯 Roadmap
-
-### MVP (Release 1) - Semanas 1-6
-- ✅ Setup do projeto
-- [ ] US1: CRUD de Produtos
-- [ ] US2: Movimentações de Estoque
-- [ ] US3: Multi-tenant + Branding
-
-### Release 2 - Semanas 7-10
-- [ ] US4: Gestão de Usuários e Permissões
-- [ ] US5: Relatórios e Alertas
-
-### Release 3 - Semanas 11-14
-- [ ] US6: Customização por Tenant
-
-### Release 4 - Semanas 15-16
-- [ ] Polish & Otimizações
-- [ ] Deploy para Produção
-
-## 📊 Performance Targets
-
-- **API**: p95 < 200ms, p99 < 500ms
-- **Throughput**: 1000 req/s
-- **Escalabilidade**: 100 tenants simultâneos
-- **Database Queries**: < 100ms (95%)
-- **Test Coverage**: ≥ 80%
-
-## 🛡️ Segurança
-
-- Senhas hasheadas com Bcrypt
-- Autenticação JWT com refresh tokens
-- Row-Level Security para isolamento de tenants
-- HTTPS/TLS obrigatório em produção
-- Rate limiting (1000 req/h por usuário)
-
-## 📝 Licença
-
-[Definir licença]
-
-## 👥 Contribuindo
-
-Ver [CONTRIBUTING.md](CONTRIBUTING.md) para guidelines de contribuição.
-
-## 📞 Suporte
-
-Para questões ou suporte, abra uma issue no repositório.
+**Status**: 🚧 Em Desenvolvimento Ativo | **Última atualização**: 14 de outubro de 2025
