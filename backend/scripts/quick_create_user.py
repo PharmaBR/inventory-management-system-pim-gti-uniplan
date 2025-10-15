@@ -32,12 +32,12 @@ async def create_user():
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (tenant_id, "Test Company", "test-company", 1, now, now, 10, 1000, 100, '{}'))
     
-    # Criar usuário
+    # Criar usuário (role deve ser "ADMIN" para corresponder ao Enum)
     cursor.execute("""
         INSERT OR REPLACE INTO users 
         (id, tenant_id, email, full_name, password_hash, role, is_active, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (user_id, tenant_id, "admin@example.com", "Admin User", password_hash, "admin", "active", now, now))
+    """, (user_id, tenant_id, "admin@example.com", "Admin User", password_hash, "ADMIN", "active", now, now))
     
     conn.commit()
     conn.close()
