@@ -160,9 +160,9 @@ describe('CategoriesPage', () => {
 
       // Assert
       await waitFor(() => {
-        expect(mutateMock).toHaveBeenCalledWith(
-          expect.objectContaining({ name: 'New Category' })
-        );
+        expect(mutateMock).toHaveBeenCalled();
+        const callArgs = mutateMock.mock.calls[0][0];
+        expect(callArgs.name).toBe('New Category');
       });
     });
 

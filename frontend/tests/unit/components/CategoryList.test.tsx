@@ -64,7 +64,9 @@ describe('CategoryList Component', () => {
 
       // Assert
       expect(screen.getByRole('table')).toBeInTheDocument();
-      expect(screen.getByText('Electronics')).toBeInTheDocument();
+      // Electronics appears twice (as category name and as parent)
+      const electronicsElements = screen.queryAllByText(/Electronics/i);
+      expect(electronicsElements.length).toBeGreaterThan(0);
       expect(screen.getByText('Books')).toBeInTheDocument();
     });
 
@@ -79,9 +81,11 @@ describe('CategoryList Component', () => {
       );
 
       // Assert
-      expect(screen.getByText('Electronics')).toBeInTheDocument();
+      const electronicsElements = screen.queryAllByText(/Electronics/i);
+      expect(electronicsElements.length).toBeGreaterThan(0);
       expect(screen.getByText('Electronic devices')).toBeInTheDocument();
-      expect(screen.getByText('Ativo')).toBeInTheDocument();
+      // Multiple categories can be active
+      expect(screen.getAllByText('Ativo').length).toBeGreaterThan(0);
       expect(screen.getByText('Inativo')).toBeInTheDocument();
     });
 
@@ -184,10 +188,11 @@ describe('CategoryList Component', () => {
         />
       );
 
-      // Assert
-      expect(screen.getByRole('button', { name: /todas/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /ativas/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /inativas/i })).toBeInTheDocument();
+      // Assert - Find buttons by text content (may have multiple matches due to action buttons)
+      const allButtons = screen.getAllByRole('button');
+      expect(allButtons.some(btn => btn.textContent?.includes('Todas'))).toBe(true);
+      expect(allButtons.some(btn => btn.textContent?.includes('Ativas'))).toBe(true);
+      expect(allButtons.some(btn => btn.textContent?.includes('Inativas'))).toBe(true);
     });
   });
 
