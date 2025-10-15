@@ -41,7 +41,7 @@ fi
 
 # Ativar venv e instalar dependências
 source venv/bin/activate
-pip install -q -r requirements/development.txt
+pip install -q -r requirements/dev.txt
 
 # Iniciar uvicorn em background
 echo -e "${GREEN}✅ Backend iniciado em http://localhost:8000${NC}"
