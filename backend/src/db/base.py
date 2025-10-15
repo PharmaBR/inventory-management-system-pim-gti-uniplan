@@ -79,6 +79,8 @@ async def init_db() -> None:
     Only use in development/testing.
     """
     from src.core.logging import logger
+    from src.core.config import settings
+    
     logger.info(f"Tables registered in Base.metadata: {list(Base.metadata.tables.keys())}")
     
     async with engine.begin() as conn:
@@ -87,10 +89,18 @@ async def init_db() -> None:
         await conn.run_sync(lambda sync_conn: Base.metadata.create_all(sync_conn, checkfirst=True))
         logger.info("create_all completed")
         
-        # Verify tables were created
-        result = await conn.execute(
-            text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
-        )
+        # Verify tables were created (different query for SQLite vs PostgreSQL)
+        if settings.DATABASE_URL.startswith("sqlite"):
+            # SQLite: Query sqlite_master
+            result = await conn.execute(
+                text("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+            )
+        else:
+            # PostgreSQL: Query information_schema
+            result = await conn.execute(
+                text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+            )
+        
         tables = [row[0] for row in result]
         logger.info(f"Tables now in database: {tables}")
 
