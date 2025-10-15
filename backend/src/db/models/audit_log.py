@@ -1,9 +1,8 @@
 """Audit log model for tracking all system changes."""
 from sqlalchemy import Column, String, ForeignKey, Text, Index, JSON
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class AuditLog(BaseModel):
@@ -23,7 +22,7 @@ class AuditLog(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -31,7 +30,7 @@ class AuditLog(BaseModel):
     
     # Who performed the action
     user_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -40,7 +39,7 @@ class AuditLog(BaseModel):
     # What happened
     action = Column(String(100), nullable=False)  # e.g., "product.create", "user.update"
     entity_type = Column(String(100), nullable=False)  # e.g., "product", "user", "movement"
-    entity_id = Column(UUID(as_uuid=True), nullable=True)  # ID of the affected entity
+    entity_id = Column(GUID(), nullable=True)  # ID of the affected entity
     
     # Details of the change
     description = Column(Text, nullable=True)

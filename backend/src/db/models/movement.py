@@ -1,10 +1,9 @@
 """Movement model for stock tracking."""
 from sqlalchemy import Column, String, ForeignKey, Integer, Text, Index, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class MovementType(str, enum.Enum):
@@ -31,7 +30,7 @@ class Movement(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -39,7 +38,7 @@ class Movement(BaseModel):
     
     # Product relationship
     product_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -59,7 +58,7 @@ class Movement(BaseModel):
     
     # Who made this movement
     user_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

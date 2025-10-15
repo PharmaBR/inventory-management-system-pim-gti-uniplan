@@ -1,10 +1,9 @@
 """User model with role-based access control."""
 from sqlalchemy import Column, String, ForeignKey, Enum, Index
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class UserRole(str, enum.Enum):
@@ -25,7 +24,7 @@ class User(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

@@ -1,10 +1,9 @@
 """Alert model for stock notifications."""
 from sqlalchemy import Column, String, ForeignKey, Boolean, Text, Index, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class AlertType(str, enum.Enum):
@@ -36,7 +35,7 @@ class Alert(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -44,7 +43,7 @@ class Alert(BaseModel):
     
     # Product relationship (optional, some alerts may be tenant-wide)
     product_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("products.id", ondelete="CASCADE"),
         nullable=True,
         index=True,

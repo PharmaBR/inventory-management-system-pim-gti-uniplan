@@ -1,9 +1,8 @@
 """Category model for product organization."""
 from sqlalchemy import Column, String, ForeignKey, Text, Index
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class Category(BaseModel):
@@ -18,7 +17,7 @@ class Category(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -30,7 +29,7 @@ class Category(BaseModel):
     
     # Hierarchical structure (optional parent category)
     parent_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("categories.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

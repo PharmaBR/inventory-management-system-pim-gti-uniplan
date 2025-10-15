@@ -1,9 +1,8 @@
 """Product model with JSONB custom fields support."""
-from sqlalchemy import Column, String, ForeignKey, Numeric, Integer, Text, Index
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, ForeignKey, Numeric, Integer, Text, Index, JSON
 from sqlalchemy.orm import relationship
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class Product(BaseModel):
@@ -22,7 +21,7 @@ class Product(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -35,7 +34,7 @@ class Product(BaseModel):
     
     # Category
     category_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("categories.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -49,9 +48,9 @@ class Product(BaseModel):
     # Pricing
     price = Column(Numeric(10, 2), nullable=True)
     
-    # Custom Fields (JSONB for flexibility)
+    # Custom Fields (JSON for flexibility - works in both SQLite and PostgreSQL)
     # Example: {"color": "blue", "size": "M", "supplier": "ACME Corp"}
-    custom_fields = Column(JSONB, default=dict, nullable=False)
+    custom_fields = Column(JSON, default=dict, nullable=False)
     
     # Status
     status = Column(String(20), default="active", nullable=False)  # active, inactive

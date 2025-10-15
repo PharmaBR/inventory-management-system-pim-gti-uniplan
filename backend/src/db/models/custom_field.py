@@ -1,10 +1,9 @@
 """Custom field definition model for tenant-specific product attributes."""
 from sqlalchemy import Column, String, ForeignKey, Boolean, Text, Index, Enum, JSON, Integer
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 
-from src.db.models import BaseModel
+from src.db.models import BaseModel, GUID
 
 
 class FieldType(str, enum.Enum):
@@ -29,7 +28,7 @@ class CustomFieldDefinition(BaseModel):
     
     # Tenant relationship (for RLS)
     tenant_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
