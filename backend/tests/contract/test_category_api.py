@@ -222,7 +222,7 @@ async def test_get_category_not_found(
 async def test_get_category_from_another_tenant_fails(
     async_client: AsyncClient,
     auth_headers: dict,
-    other_tenant_auth_headers: dict,
+    auth_headers_tenant2: dict,
 ):
     """
     Contract: Cannot access categories from other tenants.
@@ -242,7 +242,7 @@ async def test_get_category_from_another_tenant_fails(
     # Try to access as tenant B
     response = await async_client.get(
         f"/api/v1/categories/{category_id}",
-        headers=other_tenant_auth_headers,
+        headers=auth_headers_tenant2,
     )
     
     assert response.status_code == 404

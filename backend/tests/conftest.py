@@ -93,10 +93,11 @@ async def test_tenant(db_session: AsyncSession) -> dict:
     from uuid import uuid4
     from src.db.models.tenant import Tenant
     
+    tenant_uuid = uuid4()
     tenant = Tenant(
-        id=uuid4(),
+        id=tenant_uuid,
         name="Test Tenant",
-        slug="test-tenant",
+        slug=f"test-tenant-{str(tenant_uuid)[:8]}",  # Unique slug per test
         logo_url="https://example.com/logo.png",
         primary_color="#000000",
         secondary_color="#FFFFFF",
@@ -146,7 +147,7 @@ async def test_user(db_session: AsyncSession, test_tenant: dict) -> dict:
 
 
 @pytest_asyncio.fixture
-async def auth_headers(test_user: dict) -> dict:
+async def auth_headers(test_user: dict, test_tenant: dict) -> dict:
     """Create authentication headers with JWT token."""
     from src.core.security import create_access_token
     
@@ -159,7 +160,7 @@ async def auth_headers(test_user: dict) -> dict:
     
     return {
         "Authorization": f"Bearer {token}",
-        "X-Tenant-Slug": "test-tenant"
+        "X-Tenant-Slug": test_tenant["slug"]  # Use dynamic tenant slug
     }
 
 
@@ -196,10 +197,11 @@ async def test_tenant_2(db_session: AsyncSession) -> dict:
     from uuid import uuid4
     from src.db.models.tenant import Tenant
     
+    tenant_uuid = uuid4()
     tenant = Tenant(
-        id=uuid4(),
+        id=tenant_uuid,
         name="Test Tenant 2",
-        slug="test-tenant-2",
+        slug=f"test-tenant-2-{str(tenant_uuid)[:8]}",  # Unique slug per test
         logo_url="https://example.com/logo2.png",
         primary_color="#FF0000",
         secondary_color="#00FF00",
@@ -255,7 +257,7 @@ async def auth_headers_tenant1(auth_headers: dict) -> dict:
 
 
 @pytest_asyncio.fixture
-async def auth_headers_tenant2(test_user_2: dict) -> dict:
+async def auth_headers_tenant2(test_user_2: dict, test_tenant_2: dict) -> dict:
     """Create authentication headers for tenant 2."""
     from src.core.security import create_access_token
     
@@ -268,5 +270,5 @@ async def auth_headers_tenant2(test_user_2: dict) -> dict:
     
     return {
         "Authorization": f"Bearer {token}",
-        "X-Tenant-Slug": "test-tenant-2"
+        "X-Tenant-Slug": test_tenant_2["slug"]  # Use dynamic tenant slug
     }
