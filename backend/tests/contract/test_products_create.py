@@ -34,7 +34,7 @@ class TestProductCreateContract:
             "quantity": 100,
             "min_quantity": 10,
             "max_quantity": 1000,
-            "unit_price": 99.99,
+            "price": 99.99,
             "custom_fields": {}  # Optional JSONB
         }
         
@@ -55,7 +55,7 @@ class TestProductCreateContract:
         assert data["quantity"] == product_data["quantity"]
         assert data["min_quantity"] == product_data["min_quantity"]
         assert data["max_quantity"] == product_data["max_quantity"]
-        assert data["unit_price"] == product_data["unit_price"]
+        assert data["price"] == product_data["price"]
         assert "id" in data
         assert "tenant_id" in data
         assert data["tenant_id"] == tenant_id
@@ -70,7 +70,7 @@ class TestProductCreateContract:
             "sku": "TEST-002",
             "name": "Test Product",
             "quantity": 100,
-            "unit_price": 99.99
+            "price": 99.99
         }
         
         # Act
@@ -95,7 +95,7 @@ class TestProductCreateContract:
             "sku": "DUPLICATE-SKU",
             "name": "First Product",
             "quantity": 50,
-            "unit_price": 10.00
+            "price": 10.00
         }
         
         # Act - Create first product
@@ -141,7 +141,7 @@ class TestProductCreateContract:
         errors = response.json()["detail"]
         assert any(err["loc"][-1] == "name" for err in errors)
         assert any(err["loc"][-1] == "quantity" for err in errors)
-        assert any(err["loc"][-1] == "unit_price" for err in errors)
+        assert any(err["loc"][-1] == "price" for err in errors)
     
     @pytest.mark.asyncio
     async def test_create_product_invalid_quantity(
@@ -155,7 +155,7 @@ class TestProductCreateContract:
             "sku": "TEST-004",
             "name": "Test Product",
             "quantity": -10,  # Invalid
-            "unit_price": 99.99
+            "price": 99.99
         }
         
         # Act
@@ -185,7 +185,7 @@ class TestProductCreateContract:
             "sku": "TEST-005",
             "name": "Test Product",
             "quantity": 100,
-            "unit_price": -5.00  # Invalid
+            "price": -5.00  # Invalid
         }
         
         # Act
@@ -210,7 +210,7 @@ class TestProductCreateContract:
             "sku": "A" * 101,  # Max is 100 characters
             "name": "Test Product",
             "quantity": 100,
-            "unit_price": 99.99
+            "price": 99.99
         }
         
         # Act
@@ -237,7 +237,7 @@ class TestProductCreateContract:
             "name": "Categorized Product",
             "category_id": category_id,
             "quantity": 50,
-            "unit_price": 25.50
+            "price": 25.50
         }
         
         # Act
@@ -264,7 +264,7 @@ class TestProductCreateContract:
             "sku": "TEST-007",
             "name": "Custom Fields Product",
             "quantity": 100,
-            "unit_price": 99.99,
+            "price": 99.99,
             "custom_fields": {
                 "color": "blue",
                 "size": "L",
@@ -297,7 +297,7 @@ class TestProductCreateContract:
             "sku": "SHARED-SKU",
             "name": "Product in Tenant 1",
             "quantity": 100,
-            "unit_price": 10.00
+            "price": 10.00
         }
         
         # Act - Create in tenant 1

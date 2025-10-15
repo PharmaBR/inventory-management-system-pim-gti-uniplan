@@ -60,14 +60,24 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
 
     async with async_session() as session:
         yield session
-        await session.rollback()
+        # Don't rollback - let fixtures commit their data
+        # The db_engine fixture will clean up between tests
 
 
 @pytest_asyncio.fixture(scope="function")
-async def client() -> AsyncGenerator[AsyncClient, None]:
-    """Create a test HTTP client."""
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+    """Create a test HTTP client with overridden database dependency."""
+    from src.api.dependencies.database import get_db
+    
+    async def override_get_db():
+        yield db_session
+    
+    app.dependency_overrides[get_db] = override_get_db
+    
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
+    
+    app.dependency_overrides.clear()
 
 
 # Aliases for consistency with test code
@@ -92,7 +102,7 @@ async def test_tenant(db_session: AsyncSession) -> dict:
         secondary_color="#FFFFFF",
         max_users=10,
         max_products=1000,
-        max_storage_gb=10,
+        max_storage_mb=10000,  # 10GB in MB
         settings={},
         is_active=True
     )
@@ -121,7 +131,7 @@ async def test_user(db_session: AsyncSession, test_tenant: dict) -> dict:
         full_name="Test User",
         password_hash=hash_password("testpassword123"),
         role="admin",
-        is_active=True
+        is_active="active"  # String, not boolean
     )
     db_session.add(user)
     await db_session.commit()
@@ -195,7 +205,7 @@ async def test_tenant_2(db_session: AsyncSession) -> dict:
         secondary_color="#00FF00",
         max_users=10,
         max_products=1000,
-        max_storage_gb=10,
+        max_storage_mb=10000,
         settings={},
         is_active=True
     )
@@ -224,7 +234,7 @@ async def test_user_2(db_session: AsyncSession, test_tenant_2: dict) -> dict:
         full_name="Test User 2",
         password_hash=hash_password("testpassword123"),
         role="admin",
-        is_active=True
+        is_active="active"
     )
     db_session.add(user)
     await db_session.commit()

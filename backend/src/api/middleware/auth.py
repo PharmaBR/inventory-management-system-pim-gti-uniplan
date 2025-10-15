@@ -6,12 +6,12 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.core.security import verify_token, TokenPayload
 
 
-# Security scheme for Swagger/OpenAPI
-security = HTTPBearer()
+# Security scheme for Swagger/OpenAPI - auto_error=False prevents 403, we handle 401 manually
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
 ) -> TokenPayload:
     """
     Dependency to extract and validate JWT token from Authorization header.
@@ -25,6 +25,13 @@ async def get_current_user_token(
     Raises:
         HTTPException: If token is invalid or expired
     """
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     token = credentials.credentials
     
     payload = verify_token(token, token_type="access")

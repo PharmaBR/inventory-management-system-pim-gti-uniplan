@@ -6,7 +6,7 @@ Includes:
 - JWT token creation and verification
 - Token payload schemas
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -88,7 +88,7 @@ def create_access_token(
     Returns:
         Encoded JWT token string
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expire = now + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     
     payload = {
@@ -120,7 +120,7 @@ def create_refresh_token(
     Returns:
         Encoded JWT token string
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     expire = now + (expires_delta or timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS))
     
     payload = {
@@ -157,7 +157,7 @@ def verify_token(token: str, token_type: str = "access") -> Optional[TokenPayloa
         
         # Validate expiration
         exp = payload.get("exp")
-        if exp and datetime.fromtimestamp(exp) < datetime.utcnow():
+        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
             return None
         
         return TokenPayload(**payload)

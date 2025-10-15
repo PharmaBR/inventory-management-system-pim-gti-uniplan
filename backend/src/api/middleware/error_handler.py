@@ -1,5 +1,7 @@
 """Global error handling middleware."""
 from typing import Union
+from decimal import Decimal
+import json
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -7,6 +9,16 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.core.logging import logger
+
+
+class DecimalEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles Decimal and Exception objects."""
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, (ValueError, Exception)):
+            return str(obj)
+        return super().default(obj)
 
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -19,9 +31,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
     return JSONResponse(
         status_code=exc.status_code,
         content={
-            "code": exc.status_code,
-            "message": exc.detail,
-            "details": None,
+            "detail": exc.detail,
         }
     )
 
@@ -33,13 +43,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         extra={"path": request.url.path, "method": request.method}
     )
     
+    # Use custom JSON encoding to handle Decimal objects in validation errors
+    content_str = json.dumps({"detail": exc.errors()}, cls=DecimalEncoder)
+    
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={
-            "code": 422,
-            "message": "Validation error",
-            "details": exc.errors(),
-        }
+        content=json.loads(content_str),  # Parse back to dict for JSONResponse
     )
 
 

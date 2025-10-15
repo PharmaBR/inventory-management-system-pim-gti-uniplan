@@ -24,9 +24,7 @@ from src.schemas.product import (
     ProductSortParams,
 )
 from src.utils.validators import validate_sku
-from src.core.logging import get_logger
-
-logger = get_logger(__name__)
+from src.core.logging import logger
 
 
 class ProductService:
@@ -66,6 +64,8 @@ class ProductService:
         price: Decimal,
         description: Optional[str] = None,
         category_id: Optional[UUID] = None,
+        min_quantity: Optional[int] = None,
+        max_quantity: Optional[int] = None,
         custom_fields: Optional[Dict[str, Any]] = None,
     ) -> Product:
         """
@@ -81,6 +81,8 @@ class ProductService:
             price: Product price
             description: Optional description
             category_id: Optional category UUID
+            min_quantity: Optional minimum stock threshold
+            max_quantity: Optional maximum stock capacity
             custom_fields: Optional custom JSONB fields
             
         Returns:
@@ -115,6 +117,8 @@ class ProductService:
             sku=normalized_sku,
             description=description.strip() if description else None,
             quantity=quantity,
+            min_quantity=min_quantity,
+            max_quantity=max_quantity,
             price=price,
             category_id=category_id,
             custom_fields=custom_fields,

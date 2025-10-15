@@ -56,10 +56,10 @@ def validate_sku_format(sku: str) -> None:
     
     # Length validation
     if len(sku) < 3:
-        raise ValueError("SKU must be at least 3 characters long")
+        raise ValueError("SKU must be at least 3 characters in length")
     
     if len(sku) > 100:
-        raise ValueError("SKU must not exceed 100 characters")
+        raise ValueError("SKU must not exceed 100 characters in length")
     
     # Character validation (alphanumeric + -, _, .)
     if not re.match(r'^[A-Z0-9\-_.]+$', sku):

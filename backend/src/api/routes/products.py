@@ -14,9 +14,9 @@ from math import ceil
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base import get_db
+from src.api.dependencies.database import get_db
 from src.api.dependencies.auth import get_current_user
-from src.api.dependencies.tenant import get_tenant_id
+from src.api.dependencies.tenant import get_current_tenant_id
 from src.services.product import ProductService
 from src.schemas.product import (
     ProductCreate,
@@ -26,9 +26,7 @@ from src.schemas.product import (
     ProductFilterParams,
     ProductSortParams,
 )
-from src.core.logging import get_logger
-
-logger = get_logger(__name__)
+from src.core.logging import logger
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -44,7 +42,7 @@ async def create_product(
     product_data: ProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_id),
+    tenant_id: UUID = Depends(get_current_tenant_id),
 ) -> ProductResponse:
     """
     Create a new product.
@@ -106,7 +104,7 @@ async def list_products(
     sort_order: str = Query("desc", regex="^(asc|desc)$", description="Sort order"),
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_id),
+    tenant_id: UUID = Depends(get_current_tenant_id),
 ) -> ProductListResponse:
     """
     List products with pagination, filtering, and sorting.
@@ -182,7 +180,7 @@ async def get_product(
     product_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_id),
+    tenant_id: UUID = Depends(get_current_tenant_id),
 ) -> ProductResponse:
     """
     Get product by ID.
@@ -224,7 +222,7 @@ async def update_product(
     product_data: ProductUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_id),
+    tenant_id: UUID = Depends(get_current_tenant_id),
 ) -> ProductResponse:
     """
     Update product.
@@ -280,7 +278,7 @@ async def delete_product(
     product_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
-    tenant_id: UUID = Depends(get_tenant_id),
+    tenant_id: UUID = Depends(get_current_tenant_id),
 ) -> None:
     """
     Soft delete product.

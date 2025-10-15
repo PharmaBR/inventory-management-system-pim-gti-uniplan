@@ -47,7 +47,7 @@ class Product(BaseModel):
     max_quantity = Column(Integer, nullable=True)
     
     # Pricing
-    unit_price = Column(Numeric(10, 2), nullable=True)
+    price = Column(Numeric(10, 2), nullable=True)
     
     # Custom Fields (JSONB for flexibility)
     # Example: {"color": "blue", "size": "M", "supplier": "ACME Corp"}

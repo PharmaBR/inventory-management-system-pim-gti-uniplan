@@ -23,6 +23,7 @@ def mock_db_session():
     session = Mock()
     session.add = Mock()
     session.commit = AsyncMock()
+    session.rollback = AsyncMock()
     session.refresh = AsyncMock()
     session.execute = AsyncMock()
     return session
@@ -37,7 +38,7 @@ def sample_tenant():
         slug="test-tenant",
         max_users=10,
         max_products=1000,
-        status="active",
+        is_active=True,
     )
     return tenant
 
@@ -57,7 +58,7 @@ def sample_product_data():
 @pytest.mark.asyncio
 async def test_create_product_success(mock_db_session, sample_tenant, sample_product_data):
     """Test successful product creation."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -91,7 +92,7 @@ async def test_create_product_duplicate_sku_raises_error(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test that creating a product with duplicate SKU raises error."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -125,7 +126,7 @@ async def test_create_product_validates_quantity_non_negative(
     mock_db_session, sample_tenant
 ):
     """Test that negative quantity is rejected."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -147,7 +148,7 @@ async def test_create_product_validates_price_non_negative(
     mock_db_session, sample_tenant
 ):
     """Test that negative price is rejected."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -169,7 +170,7 @@ async def test_create_product_with_category(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test creating product with category_id."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     category_id = uuid4()
@@ -193,7 +194,7 @@ async def test_create_product_with_custom_fields(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test creating product with custom_fields."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     custom_fields = {"brand": "ACME", "warranty": 12}
@@ -217,7 +218,7 @@ async def test_create_product_sets_default_status(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test that new products have 'active' status by default."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -239,7 +240,7 @@ async def test_create_product_sets_timestamps(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test that created_at and updated_at are set."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -265,7 +266,7 @@ async def test_create_product_handles_database_error(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test that database errors are handled appropriately."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -289,7 +290,7 @@ async def test_create_product_normalizes_sku(
     mock_db_session, sample_tenant
 ):
     """Test that SKU is normalized (uppercase, trimmed)."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -315,9 +316,14 @@ async def test_create_product_validates_sku_length(
     mock_db_session, sample_tenant
 ):
     """Test that SKU length is validated (max 100 chars)."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
+    
+    # Mock SKU check
+    mock_result = Mock()
+    mock_result.scalar_one_or_none = Mock(return_value=None)
+    mock_db_session.execute = AsyncMock(return_value=mock_result)
     
     long_sku = "A" * 101  # 101 characters
     
@@ -339,7 +345,7 @@ async def test_create_product_validates_name_not_empty(
     mock_db_session, sample_tenant
 ):
     """Test that product name cannot be empty."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     
@@ -361,7 +367,7 @@ async def test_create_product_with_zero_quantity(
     mock_db_session, sample_tenant, sample_product_data
 ):
     """Test that zero quantity is allowed (out of stock)."""
-    from src.services.product_service import ProductService
+    from src.services.product import ProductService
     
     service = ProductService(mock_db_session)
     

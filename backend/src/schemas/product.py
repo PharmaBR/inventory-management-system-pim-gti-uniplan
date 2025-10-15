@@ -51,10 +51,21 @@ class ProductBase(BaseSchema):
         description="Current stock quantity (non-negative)",
         examples=[100],
     )
+    min_quantity: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Minimum stock threshold for alerts (optional)",
+        examples=[10],
+    )
+    max_quantity: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Maximum stock capacity (optional)",
+        examples=[1000],
+    )
     price: Decimal = Field(
         ...,
         ge=0,
-        decimal_places=2,
         description="Product price (non-negative, 2 decimal places)",
         examples=[1499.99],
     )
@@ -191,7 +202,6 @@ class ProductUpdate(BaseSchema):
     price: Optional[Decimal] = Field(
         None,
         ge=0,
-        decimal_places=2,
         description="Product price",
     )
     category_id: Optional[UUID] = Field(
@@ -278,15 +288,8 @@ class ProductUpdate(BaseSchema):
     @model_validator(mode='after')
     def validate_at_least_one_field(self) -> 'ProductUpdate':
         """Validate that at least one field is provided for update."""
-        if not any([
-            self.name,
-            self.sku,
-            self.description is not None,  # Allow setting to None
-            self.quantity is not None,
-            self.price,
-            self.category_id is not None,
-            self.custom_fields is not None,
-        ]):
+        # Check if at least one field was explicitly set (even if set to None)
+        if len(self.model_fields_set) == 0:
             raise ValueError("At least one field must be provided for update")
         return self
 
@@ -313,6 +316,8 @@ class ProductResponse(IdentifiedSchema):
     sku: str = Field(..., description="Stock Keeping Unit")
     description: Optional[str] = Field(None, description="Product description")
     quantity: int = Field(..., description="Current stock quantity")
+    min_quantity: Optional[int] = Field(None, description="Minimum stock quantity")
+    max_quantity: Optional[int] = Field(None, description="Maximum stock quantity")
     price: Decimal = Field(..., description="Product price")
     category_id: Optional[UUID] = Field(None, description="Category UUID")
     custom_fields: Optional[Dict[str, Any]] = Field(
@@ -326,6 +331,8 @@ class ProductResponse(IdentifiedSchema):
     )
     
     model_config = ConfigDict(
+        from_attributes=True,
+        json_encoders={Decimal: lambda v: float(v)},
         json_schema_extra={
             "example": {
                 "id": "123e4567-e89b-12d3-a456-426614174000",
