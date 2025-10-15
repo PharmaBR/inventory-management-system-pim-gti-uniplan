@@ -1,87 +1,94 @@
 #!/bin/bash
 
 # 🚀 Script de Início Rápido - Sistema com Autenticação
-# Inicia backend e frontend simultaneamente
+# Inicia backend e frontend simultaneamente - SEM SUDO!
 
 set -e
 
 echo "🚀 Iniciando Sistema de Gestão de Estoque..."
-echo ""
 
-# Cores para output
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Ir para diretório do script
+cd "$(dirname "$0")"
 
-# Verificar se estamos no diretório correto
+# Verificar se estamos no lugar certo
 if [ ! -d "backend" ] || [ ! -d "frontend" ]; then
-    echo "❌ Erro: Execute este script do diretório raiz do projeto"
+    echo "❌ Erro: Diretórios backend/frontend não encontrados"
     exit 1
 fi
 
-# Função para cleanup
+# Verificar/criar venv na raiz do projeto
+if [ ! -d ".venv" ]; then
+    echo "📦 Criando ambiente virtual..."
+    python3 -m venv .venv
+    echo "📥 Instalando dependências do backend..."
+    .venv/bin/pip install -q -r backend/requirements/dev.txt
+fi
+
+# Função para limpar processos ao sair
 cleanup() {
     echo ""
     echo "🛑 Encerrando servidores..."
-    kill 0
+    jobs -p | xargs kill 2>/dev/null || true
+    exit 0
 }
 
-trap cleanup EXIT
+trap cleanup SIGINT SIGTERM EXIT
 
-# Iniciar backend
-echo -e "${BLUE}📦 Iniciando Backend (FastAPI)...${NC}"
+# Iniciar Backend
+echo ""
+echo "📦 Iniciando Backend (FastAPI)..."
 cd backend
-
-# Verificar se venv existe
-if [ ! -d "venv" ]; then
-    echo -e "${YELLOW}⚠️  Virtual environment não encontrado. Criando...${NC}"
-    python3 -m venv venv
-fi
-
-# Ativar venv e instalar dependências
-source venv/bin/activate
-pip install -q -r requirements/dev.txt
-
-# Iniciar uvicorn em background
-echo -e "${GREEN}✅ Backend iniciado em http://localhost:8000${NC}"
-uvicorn src.api.main:app --reload --port 8000 &
-
-# Aguardar backend iniciar
-sleep 3
-
-# Voltar para raiz
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+../.venv/bin/python -m uvicorn src.api.main:app --reload --port 8000 &
+BACKEND_PID=$!
 cd ..
 
-# Iniciar frontend
-echo -e "${BLUE}⚛️  Iniciando Frontend (React + Vite)...${NC}"
+# Aguardar backend iniciar
+echo "⏳ Aguardando backend inicializar..."
+sleep 3
+
+# Verificar se backend está rodando
+if ! kill -0 $BACKEND_PID 2>/dev/null; then
+    echo "❌ Erro: Backend falhou ao iniciar"
+    exit 1
+fi
+
+echo "✅ Backend iniciado em http://localhost:8000"
+
+# Iniciar Frontend
+echo ""
+echo "⚛️  Iniciando Frontend (React + Vite)..."
 cd frontend
 
-# Instalar dependências se necessário
+# Verificar node_modules
 if [ ! -d "node_modules" ]; then
-    echo -e "${YELLOW}⚠️  node_modules não encontrado. Instalando...${NC}"
+    echo "📥 Instalando dependências do frontend..."
     npm install
 fi
 
-# Iniciar Vite dev server
-echo -e "${GREEN}✅ Frontend iniciado em http://localhost:3001${NC}"
+echo "✅ Frontend iniciando..."
 echo ""
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}🎉 Sistema pronto!${NC}"
-echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🎉 Sistema Pronto!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo -e "Backend:  ${BLUE}http://localhost:8000${NC}"
-echo -e "Frontend: ${BLUE}http://localhost:3001${NC}"
-echo -e "Docs API: ${BLUE}http://localhost:8000/docs${NC}"
+echo "Backend:  http://localhost:8000"
+echo "Frontend: (será mostrado pelo Vite abaixo)"
+echo "Docs API: http://localhost:8000/docs"
 echo ""
-echo -e "Credenciais de teste:"
-echo -e "  E-mail: ${YELLOW}admin@example.com${NC}"
-echo -e "  Senha:  ${YELLOW}admin123${NC}"
+echo "Credenciais:"
+echo "  E-mail: admin@example.com"
+echo "  Senha:  admin123"
 echo ""
-echo -e "Pressione ${YELLOW}Ctrl+C${NC} para encerrar ambos os servidores"
+echo "Pressione Ctrl+C para encerrar"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
+# Executar npm (este ficará em foreground)
 npm run dev
+
+# Se npm terminar, matar backend
+kill $BACKEND_PID 2>/dev/null || true
 
 # Aguardar
 wait
