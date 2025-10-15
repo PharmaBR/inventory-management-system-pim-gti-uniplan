@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { tokenStorage } from '../utils/tokenStorage';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
@@ -15,12 +16,12 @@ export const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // Add JWT token
-    const token = localStorage.getItem('access_token');
+    const token = tokenStorage.getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Add tenant slug header
+    // Add tenant slug header (optional for future multi-tenancy)
     const tenantSlug = localStorage.getItem('tenant_slug');
     if (tenantSlug && config.headers) {
       config.headers['X-Tenant-Slug'] = tenantSlug;
@@ -44,20 +45,17 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
+        const refreshToken = tokenStorage.getRefreshToken();
         
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refresh_token: refreshToken,
           });
           
-          const { access_token, refresh_token: newRefreshToken } = response.data;
+          const { access_token, refresh_token: newRefreshToken, expires_in } = response.data;
           
           // Update tokens
-          localStorage.setItem('access_token', access_token);
-          if (newRefreshToken) {
-            localStorage.setItem('refresh_token', newRefreshToken);
-          }
+          tokenStorage.setTokens(access_token, newRefreshToken, expires_in);
           
           // Retry original request with new token
           if (originalRequest.headers) {
@@ -67,10 +65,8 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
+        // Refresh failed - clear tokens and redirect to login
+        tokenStorage.clearTokens();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
@@ -80,21 +76,6 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// Auth API
-export const authAPI = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-  
-  logout: () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  },
-  
-  getCurrentUser: () => api.get('/auth/me'),
-};
 
 // Products API
 export const productsAPI = {

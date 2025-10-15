@@ -5,12 +5,26 @@
  */
 
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import { CategoriesPage } from '../pages/CategoriesPage';
+import { LoginPage } from '../pages/auth/LoginPage';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ProtectedRoute } from '../components/ProtectedRoute';
+import { useAuth } from '../hooks/useAuth';
 
 // Layout component with navigation
 const Layout: React.FC = () => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
@@ -35,6 +49,23 @@ const Layout: React.FC = () => {
                   Produtos
                 </a>
               </div>
+            </div>
+            
+            {/* User Menu */}
+            <div className="flex items-center gap-4">
+              {user && (
+                <>
+                  <span className="text-sm text-gray-600">
+                    {user.name || user.email}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  >
+                    Sair
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -115,8 +146,16 @@ const NotFoundPage: React.FC = () => {
 // Router configuration
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorBoundary />,
     children: [
       {

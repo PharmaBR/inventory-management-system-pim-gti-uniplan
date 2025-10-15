@@ -82,4 +82,3 @@ export const categoriesAPI = {
     await api.delete(`/categories/${id}`);
   },
 };
-
