@@ -15,6 +15,7 @@ from src.db.base import init_db, close_db
 from src.core.cache import close_redis
 from src.api.middleware.tenant import TenantMiddleware
 from src.api.middleware.error_handler import register_exception_handlers
+from src.api.routes import products
 
 
 @asynccontextmanager
@@ -69,6 +70,9 @@ app.add_middleware(
     TenantMiddleware,
     development_mode=settings.ENVIRONMENT == "development"
 )
+
+# API Routes
+app.include_router(products.router, prefix="/api/v1")
 
 
 @app.get("/health")
