@@ -6,6 +6,7 @@ Covers specific scenarios in list(), update(), and soft_delete() methods.
 import pytest
 from unittest.mock import Mock, AsyncMock
 from uuid import uuid4
+from pydantic import ValidationError
 
 from src.services.product import ProductService
 from src.schemas.product import ProductFilterParams, ProductSortParams, ProductUpdate
@@ -244,10 +245,9 @@ async def test_update_with_empty_name_raises_error(mock_db, tenant_id):
     mock_result.scalar_one_or_none.return_value = existing_product
     mock_db.execute.return_value = mock_result
     
-    data = ProductUpdate(name="   ")
-    
-    with pytest.raises(ValueError) as exc:
-        await service.update(product_id, tenant_id, data)
+    # Pydantic validates on creation, so we expect ValidationError
+    with pytest.raises(ValidationError) as exc:
+        data = ProductUpdate(name="   ")
     
     assert "name" in str(exc.value).lower()
 
@@ -301,10 +301,9 @@ async def test_update_with_negative_quantity_raises_error(mock_db, tenant_id):
     mock_result.scalar_one_or_none.return_value = existing_product
     mock_db.execute.return_value = mock_result
     
-    data = ProductUpdate(quantity=-5)
-    
-    with pytest.raises(ValueError) as exc:
-        await service.update(product_id, tenant_id, data)
+    # Pydantic validates on creation, so we expect ValidationError
+    with pytest.raises(ValidationError) as exc:
+        data = ProductUpdate(quantity=-5)
     
     assert "quantity" in str(exc.value).lower()
 
@@ -330,10 +329,9 @@ async def test_update_with_negative_price_raises_error(mock_db, tenant_id):
     mock_result.scalar_one_or_none.return_value = existing_product
     mock_db.execute.return_value = mock_result
     
-    data = ProductUpdate(price=-50.00)
-    
-    with pytest.raises(ValueError) as exc:
-        await service.update(product_id, tenant_id, data)
+    # Pydantic validates on creation, so we expect ValidationError
+    with pytest.raises(ValidationError) as exc:
+        data = ProductUpdate(price=-50.00)
     
     assert "price" in str(exc.value).lower()
 
