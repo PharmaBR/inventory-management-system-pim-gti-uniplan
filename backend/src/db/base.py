@@ -26,15 +26,24 @@ from src.db.models.custom_field import CustomFieldDefinition  # noqa: E402, F401
 from src.db.models.audit_log import AuditLog  # noqa: E402, F401
 
 
-# Create async engine
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    future=True,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-)
+# Create async engine with appropriate settings based on database type
+# SQLite doesn't support pool_size and max_overflow parameters
+if settings.DATABASE_URL.startswith("sqlite"):
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        future=True,
+    )
+else:
+    # PostgreSQL and other databases support connection pooling
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        future=True,
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+    )
 
 # Create async session factory
 AsyncSessionLocal = async_sessionmaker(
