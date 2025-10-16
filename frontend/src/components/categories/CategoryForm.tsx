@@ -33,7 +33,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [parentId, setParentId] = useState<string | undefined>(undefined);
-  const [isActive, setIsActive] = useState(true);
+  const [status, setStatus] = useState<'active' | 'inactive'>('active');
   const [errors, setErrors] = useState<{ name?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,7 +43,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       setName(category.name);
       setDescription(category.description || '');
       setParentId(category.parent_id);
-      setIsActive(category.is_active);
+      setStatus(category.status);
     }
   }, [mode, category]);
 
@@ -77,6 +77,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           name: trimmedName,
           description: trimmedDescription || undefined,
           parent_id: parentId,
+          status: status,
         };
         await onCreate(data);
       } else if (mode === 'edit' && onUpdate && category) {
@@ -84,7 +85,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           name: trimmedName,
           description: trimmedDescription || undefined,
           parent_id: parentId,
-          is_active: isActive,
+          status: status,
         };
         await onUpdate(category.id, data);
       }
@@ -145,14 +146,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           <div className="flex items-center">
             <input
               type="checkbox"
-              id="is_active"
-              name="is_active"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
+              id="status"
+              name="status"
+              checked={status === 'active'}
+              onChange={(e) => setStatus(e.target.checked ? 'active' : 'inactive')}
               disabled={isLoading}
               className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
             />
-            <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+            <label htmlFor="status" className="ml-2 block text-sm text-gray-900">
               Ativo
             </label>
           </div>

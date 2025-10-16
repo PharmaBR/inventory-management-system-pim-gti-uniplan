@@ -12,7 +12,7 @@ export interface Category {
   name: string;
   description?: string;
   parent_id?: string;
-  is_active: boolean;
+  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
   tenant_id: string;
@@ -25,6 +25,7 @@ export interface CategoryCreate {
   name: string;
   description?: string;
   parent_id?: string;
+  status?: 'active' | 'inactive';
 }
 
 /**
@@ -34,7 +35,7 @@ export interface CategoryUpdate {
   name?: string;
   description?: string;
   parent_id?: string;
-  is_active?: boolean;
+  status?: 'active' | 'inactive';
 }
 
 /**

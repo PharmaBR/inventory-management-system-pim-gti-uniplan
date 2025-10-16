@@ -15,13 +15,18 @@ export const LoginPage = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
+    console.log('🔐 Attempting login with:', email);
+    
     try {
-      await login({ email, password });
+      const result = await login({ email, password });
+      console.log('✅ Login successful:', result);
+      
       // On success, navigate to categories
+      console.log('🚀 Navigating to /categories');
       navigate('/categories');
     } catch (error) {
       // Error is handled by useAuth hook
-      console.error('Login failed:', error);
+      console.error('❌ Login failed:', error);
     }
   };
 

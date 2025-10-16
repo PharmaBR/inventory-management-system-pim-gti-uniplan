@@ -26,10 +26,7 @@ const categoryKeys = {
 export const useCategories = (filters: CategoryFilter = {}) => {
   return useQuery({
     queryKey: categoryKeys.list(filters),
-    queryFn: async () => {
-      const response = await categoriesAPI.getCategoriesList(filters);
-      return response.data;
-    },
+    queryFn: () => categoriesAPI.getCategoriesList(filters),
   });
 };
 
@@ -39,10 +36,9 @@ export const useCategories = (filters: CategoryFilter = {}) => {
 export const useCategory = (id: string | undefined) => {
   return useQuery({
     queryKey: id ? categoryKeys.detail(id) : ['categories', 'detail', 'undefined'],
-    queryFn: async () => {
+    queryFn: () => {
       if (!id) throw new Error('Category ID is required');
-      const response = await categoriesAPI.getCategoryById(id);
-      return response.data;
+      return categoriesAPI.getCategory(id);
     },
     enabled: !!id,
   });

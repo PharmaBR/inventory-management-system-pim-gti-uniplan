@@ -110,10 +110,10 @@ const TreeNode: React.FC<TreeNodeProps> = ({
         <span
           className={`
             px-2 py-0.5 text-xs font-medium rounded-full
-            ${node.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+            ${node.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
           `}
         >
-          {node.is_active ? 'Ativo' : 'Inativo'}
+          {node.status === 'active' ? 'Ativo' : 'Inativo'}
         </span>
 
         {/* Action Buttons (visible on hover or always in tests) */}

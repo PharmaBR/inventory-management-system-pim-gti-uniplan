@@ -175,12 +175,12 @@ export const CategoryList: React.FC<CategoryListProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        category.is_active
+                        category.status === 'active'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {category.is_active ? 'Ativo' : 'Inativo'}
+                      {category.status === 'active' ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
