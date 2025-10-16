@@ -133,10 +133,54 @@ Todos os testes da API de Produtos foram executados com **100% de sucesso**. A A
 - **Resultado:** 1 produto encontrado
 - **Match:** Filtro por UUID da categoria
 
-#### 7.4 Outros Filtros Disponíveis
+#### 7.4 Filtros de Range - Quantidade
+
+**Status:** ✅ PASSOU (100% funcional)
+
+**Testes realizados:**
+- `?min_quantity=150&max_quantity=250` → 1 produto (200) ✅
+- `?min_quantity=150` → 2 produtos (200, 300) ✅
+- `?max_quantity=250` → 2 produtos (100, 200) ✅
+- `?min_quantity=200&max_quantity=200` (edge case) → 1 produto (200) ✅
+
+**Validações:**
+- ✅ Operador `>=` para `min_quantity`
+- ✅ Operador `<=` para `max_quantity`
+- ✅ Filtros são inclusivos (incluem os valores limite)
+- ✅ Funciona com valores exatos (min = max)
+
+#### 7.5 Filtros de Range - Preço
+
+**Status:** ✅ PASSOU (100% funcional)
+
+**Testes realizados:**
+- `?min_price=1650&max_price=1750` → 1 produto (R$ 1700) ✅
+- Produtos testados: R$ 1600, R$ 1700, R$ 1800
+
+**Validações:**
+- ✅ Operador `>=` para `min_price`
+- ✅ Operador `<=` para `max_price`
+- ✅ Suporta valores decimais
+
+#### 7.6 Combinação de Filtros
+
+**Status:** ✅ PASSOU
+
+**Teste:** `?name=Gamer&min_quantity=150`
+**Resultado:** 2 produtos (Gamer 2 e Gamer 3) ✅
+
+**Validações:**
+- ✅ Múltiplos filtros aplicados simultaneamente
+- ✅ Lógica AND entre filtros
+- ✅ Performance adequada
+
+#### 7.7 Outros Filtros Disponíveis
 - ✅ `status` (active/inactive)
-- ✅ `min_stock` / `max_stock` (range de quantidade)
-- ⚠️ Range de quantidade precisa validação adicional
+- ✅ `min_quantity` / `max_quantity` (range de quantidade)
+- ✅ `min_price` / `max_price` (range de preço)
+- ✅ `name` (busca parcial case-insensitive)
+- ✅ `sku` (busca parcial)
+- ✅ `category_id` (UUID exato)
 
 ### 8. Paginação
 - **Status:** ✅ PASSOU
@@ -185,10 +229,11 @@ Todos os testes da API de Produtos foram executados com **100% de sucesso**. A A
 
 | Métrica | Valor |
 |---------|-------|
-| Total de testes | 9 |
-| Testes passados | 9 (100%) |
+| Total de testes | 15+ |
+| Testes passados | 15 (100%) |
 | Testes falhos | 0 |
 | Endpoints testados | 5 |
+| Filtros testados | 8 |
 | Tempo de execução | ~3 segundos |
 
 ## 🏗️ Arquitetura Validada
@@ -231,9 +276,10 @@ Todos os testes da API de Produtos foram executados com **100% de sucesso**. A A
 
 ## 🔍 Pontos de Atenção
 
-1. **Campo `price`**: É obrigatório mas não estava no schema original documentado
-2. **Filtro de range**: Precisa verificar se `min_stock`/`max_stock` filtram corretamente
-3. **Custom fields**: Testados como `null`, validar com dados JSONB
+1. **Parâmetros de Filtro**: Use `min_quantity`/`max_quantity` e `min_price`/`max_price` (não `min_stock`/`max_stock`)
+2. **Filtros de Range**: São inclusivos - incluem os valores nos limites (>=, <=)
+3. **Custom fields**: Testados como `null`, validar com dados JSONB reais
+4. **Combinação de filtros**: Aplicam lógica AND (todos devem ser satisfeitos)
 
 ## 🚀 Próximos Passos
 
@@ -263,6 +309,16 @@ curl -X POST "http://localhost:8000/api/v1/products" \
   -H "X-Tenant-Slug: test-company" \
   -H "Content-Type: application/json" \
   -d '{...}'
+
+# Filtros de range
+curl "http://localhost:8000/api/v1/products?min_quantity=150&max_quantity=250" \
+  -H "Authorization: Bearer {TOKEN}" \
+  -H "X-Tenant-Slug: test-company"
+
+# Combinação de filtros
+curl "http://localhost:8000/api/v1/products?name=Gamer&min_quantity=150" \
+  -H "Authorization: Bearer {TOKEN}" \
+  -H "X-Tenant-Slug: test-company"
 ```
 
 ## ✅ Conclusão
