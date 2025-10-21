@@ -24,6 +24,34 @@ if [ ! -d ".venv" ]; then
     .venv/bin/pip install -q -r backend/requirements/dev.txt
 fi
 
+# Preflight: garantir que a porta 8000 (backend) esteja livre
+echo "\n🔎 Preflight: verificando porta 8000..."
+if lsof -ti tcp:8000 >/dev/null 2>&1; then
+    BUSY_PIDS=$(lsof -ti tcp:8000 | tr '\n' ' ')
+    echo "⚠️  Porta 8000 em uso pelos PIDs: ${BUSY_PIDS}"
+    # Tentar identificar uvicorn/python uvicorn e encerrar automaticamente
+    UVICORN_PIDS=$(lsof -nP -iTCP:8000 -sTCP:LISTEN -Fp 2>/dev/null | sed 's/p//' | xargs -I{} ps -o pid=,comm=,args= -p {} 2>/dev/null | grep -E 'uvicorn|python.*uvicorn' | awk '{print $1}')
+    if [ -n "$UVICORN_PIDS" ]; then
+        echo "🧹 Encerrando uvicorn automático: $UVICORN_PIDS"
+        kill $UVICORN_PIDS 2>/dev/null || true
+        sleep 1
+    else
+        echo "❌ Porta 8000 em uso por outro processo que não é uvicorn."
+        echo "   Finalize o processo e tente novamente."
+        echo "   Dica (macOS): lsof -ti tcp:8000 | xargs kill"
+        exit 1
+    fi
+    # Verificar novamente
+    if lsof -ti tcp:8000 >/dev/null 2>&1; then
+        echo "❌ Ainda há processos na porta 8000. Abortando."
+        exit 1
+    else
+        echo "✅ Porta 8000 liberada."
+    fi
+else
+    echo "✅ Porta 8000 livre."
+fi
+
 # Função para limpar processos ao sair
 cleanup() {
     echo ""
@@ -58,6 +86,34 @@ echo "✅ Backend iniciado em http://localhost:8000"
 # Iniciar Frontend
 echo ""
 echo "⚛️  Iniciando Frontend (React + Vite)..."
+
+# Preflight: garantir que a porta 3000 (frontend) esteja livre
+echo "\n🔎 Preflight: verificando porta 3000..."
+if lsof -ti tcp:3000 >/dev/null 2>&1; then
+    BUSY_PIDS_3000=$(lsof -ti tcp:3000 | tr '\n' ' ')
+    echo "⚠️  Porta 3000 em uso pelos PIDs: ${BUSY_PIDS_3000}"
+    # Tentar identificar vite/node e encerrar automaticamente
+    VITE_PIDS=$(lsof -nP -iTCP:3000 -sTCP:LISTEN -Fp 2>/dev/null | sed 's/p//' | xargs -I{} ps -o pid=,comm=,args= -p {} 2>/dev/null | grep -E 'vite|node.*vite' | awk '{print $1}')
+    if [ -n "$VITE_PIDS" ]; then
+        echo "🧹 Encerrando processos Vite/Node: $VITE_PIDS"
+        kill $VITE_PIDS 2>/dev/null || true
+        sleep 1
+    else
+        echo "❌ Porta 3000 em uso por outro processo que não é Vite/Node."
+        echo "   Finalize o processo e tente novamente."
+        echo "   Dica (macOS): lsof -ti tcp:3000 | xargs kill"
+        exit 1
+    fi
+    # Verificar novamente
+    if lsof -ti tcp:3000 >/dev/null 2>&1; then
+        echo "❌ Ainda há processos na porta 3000. Abortando."
+        exit 1
+    else
+        echo "✅ Porta 3000 liberada."
+    fi
+else
+    echo "✅ Porta 3000 livre."
+fi
 cd frontend
 
 # Verificar node_modules

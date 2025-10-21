@@ -21,8 +21,12 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Add tenant slug header (optional for future multi-tenancy)
-    const tenantSlug = localStorage.getItem('tenant_slug');
+    // Add tenant slug header (multi-tenancy)
+    // Prefer value from localStorage; fallback to dev env var or sensible default
+    const tenantSlug =
+      localStorage.getItem('tenant_slug') ||
+      (import.meta as any).env?.VITE_DEV_TENANT_SLUG ||
+      'test-company';
     if (tenantSlug && config.headers) {
       config.headers['X-Tenant-Slug'] = tenantSlug;
     }

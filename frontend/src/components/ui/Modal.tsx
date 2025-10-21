@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { cn } from '../../utils/cn';
-import { Button } from './Button';
 
 export interface ModalProps {
   isOpen: boolean;

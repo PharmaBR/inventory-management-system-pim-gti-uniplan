@@ -15,7 +15,7 @@ from src.db.base import init_db, close_db
 from src.core.cache import close_redis
 from src.api.middleware.tenant import TenantMiddleware
 from src.api.middleware.error_handler import register_exception_handlers
-from src.api.routes import products, categories, auth
+from src.api.routes import products, categories, auth, movements
 
 
 @asynccontextmanager
@@ -75,6 +75,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(products.router, prefix="/api/v1")
 app.include_router(categories.router, prefix="/api/v1")
+app.include_router(movements.router, prefix="/api/v1")
 
 
 @app.get("/health")

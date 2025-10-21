@@ -178,7 +178,7 @@ export const CategoryTree: React.FC<CategoryTreeProps> = ({
   onSelect,
   onEdit,
   onDelete,
-  onMove,
+  onMove: _onMove,
   selectedId,
   defaultExpanded = false,
   enableDragDrop = false,

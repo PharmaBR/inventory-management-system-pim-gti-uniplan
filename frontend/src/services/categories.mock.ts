@@ -19,7 +19,7 @@ let mockCategories: Category[] = [
     id: '1',
     name: 'Eletrônicos',
     description: 'Dispositivos eletrônicos e acessórios',
-    is_active: true,
+    status: 'active',
     tenant_id: 'demo-tenant',
     created_at: '2025-01-10T10:00:00Z',
     updated_at: '2025-01-10T10:00:00Z',
@@ -28,7 +28,7 @@ let mockCategories: Category[] = [
     id: '2',
     name: 'Computadores',
     description: 'Desktops, laptops e acessórios',
-    is_active: true,
+    status: 'active',
     parent_id: '1',
     tenant_id: 'demo-tenant',
     created_at: '2025-01-10T10:05:00Z',
@@ -38,7 +38,7 @@ let mockCategories: Category[] = [
     id: '3',
     name: 'Livros',
     description: 'Livros e publicações',
-    is_active: true,
+    status: 'active',
     tenant_id: 'demo-tenant',
     created_at: '2025-01-10T10:10:00Z',
     updated_at: '2025-01-10T10:10:00Z',
@@ -47,7 +47,7 @@ let mockCategories: Category[] = [
     id: '4',
     name: 'Ficção',
     description: 'Livros de ficção',
-    is_active: true,
+    status: 'active',
     parent_id: '3',
     tenant_id: 'demo-tenant',
     created_at: '2025-01-10T10:15:00Z',
@@ -57,7 +57,7 @@ let mockCategories: Category[] = [
     id: '5',
     name: 'Smartphones',
     description: 'Telefones celulares',
-    is_active: true,
+    status: 'active',
     parent_id: '1',
     tenant_id: 'demo-tenant',
     created_at: '2025-01-10T10:20:00Z',
@@ -89,8 +89,7 @@ export const mockCategoriesAPI = {
     }
 
     if (filters.status !== undefined) {
-      const isActive = filters.status === 'active';
-      filtered = filtered.filter(cat => cat.is_active === isActive);
+      filtered = filtered.filter(cat => cat.status === filters.status);
     }
 
     if (filters.parent_id) {
@@ -141,7 +140,7 @@ export const mockCategoriesAPI = {
       id: String(nextId++),
       name: data.name,
       description: data.description,
-      is_active: true,
+      status: data.status ?? 'active',
       parent_id: data.parent_id,
       tenant_id: 'demo-tenant',
       created_at: new Date().toISOString(),
@@ -169,7 +168,7 @@ export const mockCategoriesAPI = {
       ...mockCategories[index],
       ...(data.name !== undefined && { name: data.name }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.is_active !== undefined && { is_active: data.is_active }),
+      ...(data.status !== undefined && { status: data.status }),
       ...(data.parent_id !== undefined && { parent_id: data.parent_id }),
       updated_at: new Date().toISOString(),
     };

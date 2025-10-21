@@ -5,14 +5,16 @@
  */
 
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { CategoriesPage } from '../pages/CategoriesPage';
+import { ProductsPage } from '../pages/ProductsPage';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { useAuth } from '../hooks/useAuth';
 
 // Layout component with navigation
+import MovementsPage from '../pages/MovementsPage';
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
 
@@ -48,9 +50,14 @@ const Layout: React.FC = () => {
                 >
                   Produtos
                 </a>
+                <a
+                  href="/movements"
+                  className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  Movimentações
+                </a>
               </div>
             </div>
-            
             {/* User Menu */}
             <div className="flex items-center gap-4">
               {user && (
@@ -109,19 +116,7 @@ const HomePage: React.FC = () => {
   );
 };
 
-// Products page placeholder
-const ProductsPage: React.FC = () => {
-  return (
-    <div className="py-12 text-center">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        Produtos
-      </h2>
-      <p className="text-gray-600">
-        Página de produtos em desenvolvimento...
-      </p>
-    </div>
-  );
-};
+// Products page provided in pages/ProductsPage
 
 // 404 page
 const NotFoundPage: React.FC = () => {
@@ -169,6 +164,10 @@ export const router = createBrowserRouter([
       {
         path: 'products',
         element: <ProductsPage />,
+      },
+      {
+        path: 'movements',
+        element: <MovementsPage />,
       },
       {
         path: '*',
