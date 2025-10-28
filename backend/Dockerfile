@@ -5,21 +5,26 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
 COPY requirements/base.txt requirements/base.txt
-COPY requirements/dev.txt requirements/dev.txt
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements/dev.txt
+RUN pip install --no-cache-dir -r requirements/base.txt
 
 # Copy application code
 COPY . .
 
+# Create data directory for SQLite
+RUN mkdir -p /data
+
 # Expose port
 EXPOSE 8000
 
-# Run application
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PORT=8000
+
+# Run application (production mode - no reload)
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

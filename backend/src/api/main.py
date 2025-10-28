@@ -26,14 +26,13 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Debug mode: {settings.DEBUG}")
     
-    # Initialize database (only in development)
-    if settings.ENVIRONMENT == "development":
-        logger.info("Initializing database tables...")
-        try:
-            await init_db()
-            logger.info("Database initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize database: {e}")
+    # Initialize database
+    logger.info("Initializing database tables...")
+    try:
+        await init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
     
     yield
     
